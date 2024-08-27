@@ -31,9 +31,9 @@ def run():
 
 # Code refactored
 # Now the superclass is used to return itself with different implementations according to the
-# method choosen. For example, if the method "for_interger" is selected, them the superclass
-# is returned with the implementation related to intergers. The same applies for "for_class"
-# and other methods
+# method choosen. For example, if the method "for_integer" is selected, them the superclass
+# is returned with the implementation related to intergers which is "DefaultDescriptor".
+# The same applies for "for_class" and other methods
 class AttributeDescriptorRefac:
     def for_boolean(self):
         return DefaultDescriptorRefac("boolean")
