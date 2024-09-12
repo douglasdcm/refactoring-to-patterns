@@ -11,123 +11,22 @@ class SystemPermissinon:
     UNIX_CLAIMED: str = "UNIX_CLAIMED"
     admin = None
 
-    def will_be_handled_by(self):
-        pass
-
-    def claimed_by(self):
-        if state != self.REQUESTED and state != self.UNIX_REQUESTED:
-            return
-        self.will_be_handled_by(self.admin)
-
-        if state == self.REQUESTED:
-            state = self.CLAIMED
-        elif state == self.UNIX_REQUESTED:
-            state = self.UNIX_CLAIMED
-
-    def granted_by(self):
-        pass
-
-    def denied_by(self):
-        pass
-
-
-# Refactored code
-# Refactoring dind't work as expected due circular reference. Ignore the code
-class PermissionStateInterfaceRefac:
-    def __init__(self, name):
-        self.REQUESTED = None
-        self.CLAIMED = None
-        self.GRANTED = None
-        self.DENIED = None
-        self.UNIX_REQUESTED = None
-        self.UNIX_CLAIMED = None
-        self._permissinon_state: self = None
-        self._admin = None
-
-    def will_be_handled_by(self):
-        pass
-
-    def get_state(self):
-        return self._permissinon_state
-
-    def set_state(self, state):
-        self._permissinon_state = state
-
-    def claimed_by(self, role):
-        pass
-
-
-class PermissionStateRefac(PermissionStateInterfaceRefac):
-    def __init__(self, name):
-        self.REQUESTED = PermissionRequestedRefac("REQUESTED")
-        self.CLAIMED = PermissionGrantedRefac("CLAIMED")
-        self.GRANTED = PermissionGrantedRefac("GRANTED")
-        self.DENIED = PermissionDeniedRefac("DENIED")
-        self.UNIX_REQUESTED = UnixPermissionRequestedRefac("UNIX_REQUESTED")
-        self.UNIX_CLAIMED = UnixPermissionClaimedRefac("UNIX_CLAIMED")
-        self._permissinon_state: self = None
-        self._admin = None
-
-    def will_be_handled_by(self):
-        pass
-
-    def get_state(self):
-        return self._permissinon_state
-
-    def set_state(self, state):
-        self._permissinon_state = state
-
-    def claimed_by(self, role):
-        pass
-
-
-class UnixPermissionClaimedRefac:
-    pass
-
-
-class UnixPermissionRequestedRefac:
-    pass
-
-
-class PermissionDeniedRefac:
-    pass
-
-
-class PermissionGrantedRefac:
-    pass
-
-
-class PermissionClaimedRefac:
-    def granted_by(self):
-        # the logic to grant access
-        pass
-
-    def denied_by(self):
-        # the logic to deny access
-        pass
-
-
-class PermissionRequestedRefac(PermissionStateInterfaceRefac):
-    def __init__(self, name):
-        super().__init__(name)
+    # introduced by me to change the state changes. It is not part of the original code
+    def change_state(self, _state):
+        self.state = _state
 
     def will_be_handled_by(self, role):
         pass
 
-    def set_state(self):
-        self._state = self.CLAIMED
-
     def claimed_by(self):
-        self.will_be_handled_by(self._admin)
-        self.set_state()
+        if self.state != self.REQUESTED and self.state != self.UNIX_REQUESTED:
+            return
+        self.will_be_handled_by(self.admin)
 
-
-class SystemPermissionRefac:
-    def __init__(self) -> None:
-        self._permission_state = PermissionStateInterfaceRefac("")
-
-    def claimed_by(self):
-        self._permission_state.claimed_by("someone")
+        if self.state == self.REQUESTED:
+            self.state = self.CLAIMED
+        elif self.state == self.UNIX_REQUESTED:
+            self.state = self.UNIX_CLAIMED
 
     def granted_by(self):
         pass
@@ -136,7 +35,120 @@ class SystemPermissionRefac:
         pass
 
 
-def run():
-    system_permission = SystemPermissionRefac()
-    system_permission.claimed_by()
-    return system_permission
+def run_original():
+    permission = SystemPermissinon()
+    permission.claimed_by()
+    state1 = permission.state
+
+    permission.change_state("UNIX_REQUESTED")
+    permission.claimed_by()
+    state2 = permission.state
+
+    return state1, state2
+
+
+# Refactored code
+# The conditionals where simplified in the method "claimed_by". New ConcretStates now implement the methods "request"
+# and "unix_request" and change to the next status. This new implementation is based on the one from the book
+# "Design Patterns"
+class StateRefac:
+    state = None
+    value = None
+
+    def claimed_by(self, context):
+        pass
+
+    def request(self, context):
+        pass
+
+    def unix_request(self, contexxt):
+        pass
+
+    def change_state(self, context, permission):
+        return context.change_state(permission)
+
+
+class SystemPermissionRequestedRefac(StateRefac):
+    value = "REQUESTED"
+
+    def request(self, context):
+        self.change_state(context, SystemPermissionClaimedRefac())
+
+
+class SystemPermissionClaimedRefac(StateRefac):
+    value = "CLAIMED"
+
+    def claimed_by(self):
+        if not isinstance(
+            self.state, SystemPermissionRequestedRefac
+        ) and not isinstance(self.state, SystemPermissionUnixRequestedRefac()):
+            return
+        self.will_be_handled_by(self.admin)
+
+    def will_be_handled_by(self, role):
+        pass
+
+
+class SystemPermissionGrantedRefac(StateRefac):
+    pass
+
+
+class SystemPermissionDeniedRefac(StateRefac):
+    pass
+
+
+class SystemPermissionUnixRequestedRefac(StateRefac):
+    value = "UNIX_REQUESTED"
+
+    def claimed_by(self):
+        self.state = SystemPermissionUnixClaimedRefac()
+
+    def unix_request(self, context):
+        self.change_state(context, SystemPermissionUnixClaimedRefac())
+
+
+class SystemPermissionUnixClaimedRefac(StateRefac):
+    value = "UNIX_CLAIMED"
+
+
+class SystemPermissinonRefac:
+    state = SystemPermissionRequestedRefac()
+    admin = None
+
+    # introduced by me to change the state changes. It is not part of the original code
+    def change_state(self, _state):
+        self.state = _state
+
+    def will_be_handled_by(self, role):
+        pass
+
+    def claimed_by(self):
+        if not isinstance(
+            self.state, SystemPermissionRequestedRefac
+        ) and not isinstance(self.state, SystemPermissionUnixRequestedRefac):
+            return
+        self.will_be_handled_by(self.admin)
+
+    def request(self):
+        self.state.request(self)
+
+    def unix_request(self):
+        self.state.unix_request(self)
+
+    def granted_by(self):
+        pass
+
+    def denied_by(self):
+        pass
+
+
+def run_refac():
+    permission = SystemPermissinonRefac()
+    permission.request()
+    state1 = permission.state.value
+
+    permission.change_state(SystemPermissionUnixRequestedRefac())
+    permission.unix_request()
+    state2 = permission.state.value
+
+    return state1, state2
