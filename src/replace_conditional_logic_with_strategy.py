@@ -1,6 +1,6 @@
 # Original code
-# There are many coonditions to return the correct calculation. If a new calculation is ncessary,
-# then a condition has to br added
+# There are many coonditions to return the correct calculation. If a new calculation is necessary,
+# then a condition has to be added
 def risk_factory():
     return 1
 
@@ -54,8 +54,8 @@ class Loan:
 
 # Code refactored
 # The conditions from capital where removed. Now the object Loan receives the concrete CapitalStrategy object and executes
-# the method capital of each the concrete class. To get the correct Loan, like TermLoan, the client calls the helper
-# method "new_term_loan", "new_advide_line" or new_revolver_loan" (check the unit test). If a new Loan is added, it is
+# the method "capital" of each concrete class. To get the correct Loan, like TermLoan, the client calls the helper
+# method "new_term_loan", "new_advisee_line" or new_revolver_loan" (check the unit test). If a new Loan is added, it is
 # necessary to add a new "creater" method
 class LoanRefac:
     expiricy = None
