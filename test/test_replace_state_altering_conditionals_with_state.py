@@ -1,4 +1,4 @@
-from src.replace_stat_altering_conditionals_with_state import run_refac, run_original
+from src.replace_state_altering_conditionals_with_state import run_refac, run_original
 
 
 def test_refac():

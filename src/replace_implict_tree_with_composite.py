@@ -1,5 +1,5 @@
 # Original code
-# NOtice the xlm is built using a string handler
+# Notice the xlm is built using a string handler
 def client():
     xml = []
     xml.append("<orders>")

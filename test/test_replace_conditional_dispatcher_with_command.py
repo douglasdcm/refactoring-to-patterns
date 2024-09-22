@@ -1,4 +1,4 @@
-from src.replace_conditional_method_with_command import client, client_refac
+from src.replace_conditional_dispatcher_with_command import client, client_refac
 
 
 def test_client():
