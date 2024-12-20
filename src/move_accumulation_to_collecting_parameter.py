@@ -18,7 +18,8 @@ class TagNode:
 
 # Refctored code
 # Some functions were created to build the string and "result" is passed
-# hand by hand to accumulate the string
+# hand by hand to accumulate the string. 'result' is a list that is converted
+# to a string at to_string()
 class TagNodeRefac:
     def __init__(self):
         self._result = []
